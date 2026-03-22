@@ -59,6 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
     initSwipeActions();
     initSearch();
     initSidebarDrawer();
+    initHelpLink();
     loadTopicDocuments(currentTopic);
     syncTopicSelectOptions();
     initMindTreeEditor();
@@ -76,6 +77,19 @@ function getDeepSeekApiKey() {
     } catch (_) {
         return "";
     }
+}
+
+function initHelpLink() {
+    const helpBtn = document.querySelector(".help-btn");
+    if (!helpBtn) return;
+
+    helpBtn.addEventListener("click", () => {
+        window.open(
+            "https://scnwt0uo804u.feishu.cn/wiki/DHXlwUZoei4BkEkmB6XcGWFznQf?from=from_copylink",
+            "_blank",
+            "noopener,noreferrer"
+        );
+    });
 }
 
 function initSidebarDrawer() {
@@ -432,11 +446,12 @@ function uploadDocument() {
         }
         const keywords = extractSimpleKeywords(rawText);
         const description = rawText.replace(/\s+/g, " ").slice(0, 90) + (rawText.length > 90 ? "..." : "");
+        const textContent = `${rawText}\n\n关键词：${keywords.join("、") || "（待识别）"}`;
         finishInsert(
             {
-                title: `文字片段 ${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`,
+                title: generateTitleFromContent(rawText, `文字片段 ${new Date().toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" })}`),
                 description,
-                content: `${rawText}\n\n关键词：${keywords.join("、") || "（待识别）"}`,
+                content: textContent,
                 image: "",
                 updated: "刚刚导入",
                 pinned: false,
@@ -463,8 +478,9 @@ function uploadDocument() {
 
     readUploadedFile(selectedFile)
         .then((parsed) => {
-            const title = selectedFile.name.replace(/\.[^.]+$/, "") || `新文档 ${topicDocuments[selectedTopic].length + 1}`;
+            const fallbackTitle = selectedFile.name.replace(/\.[^.]+$/, "") || `新文档 ${topicDocuments[selectedTopic].length + 1}`;
             const content = (parsed.content || "").trim();
+            const title = generateTitleFromContent(content, fallbackTitle);
             const shortDescription = content
                 ? content.replace(/\s+/g, " ").slice(0, 90) + (content.length > 90 ? "..." : "")
                 : "该文件暂不支持全文解析，已保留文件信息。";
@@ -643,6 +659,28 @@ function extractTitleFromUrl(url) {
     }
 }
 
+function generateTitleFromContent(content, fallbackTitle = "网页文档") {
+    const text = String(content || "").replace(/\r\n/g, "\n").trim();
+    if (!text) return fallbackTitle;
+
+    const titleMatch = text.match(/^\s*title\s*:\s*(.+)$/im);
+    const picked = titleMatch?.[1]
+        || text
+            .split("\n")
+            .map((line) => line.trim())
+            .find(Boolean)
+        || fallbackTitle;
+
+    const normalized = picked
+        .replace(/\s*url\s*source\s*:.*$/i, "")
+        .replace(/\s+/g, " ")
+        .trim();
+
+    if (!normalized) return fallbackTitle;
+    const maxLen = 18;
+    return normalized.length > maxLen ? `${normalized.slice(0, maxLen)}...` : normalized;
+}
+
 function normalizeWebUrl(rawUrl) {
     const text = String(rawUrl || "").trim();
     if (!text) throw new Error("请输入有效网页链接");
@@ -729,8 +767,8 @@ function buildSimplePdfDataUrl(title, sourceUrl, content) {
 async function importFromWebUrl(rawUrl) {
     const sourceUrl = normalizeWebUrl(rawUrl);
     const fullText = await fetchWebPageContent(sourceUrl);
-    const title = extractTitleFromUrl(sourceUrl) || "网页文档";
     const content = fullText.slice(0, 30000);
+    const title = generateTitleFromContent(content, extractTitleFromUrl(sourceUrl) || "网页文档");
     const description = content.replace(/\s+/g, " ").slice(0, 90) + (content.length > 90 ? "..." : "");
 
     let pdfDataUrl = "";
@@ -819,6 +857,7 @@ function renderGlobalSearchResults(keyword) {
             <div class="card-menu-dropdown">
                 <button class="menu-item" data-action="pin">${doc.pinned ? "取消置顶" : "置顶"}</button>
                 <button class="menu-item" data-action="mark">${doc.marked ? "取消标记" : "标记"}</button>
+                <button class="menu-item" data-action="rename">编辑标题</button>
                 <button class="menu-item danger" data-action="delete">删除</button>
             </div>
         `;
@@ -1697,6 +1736,16 @@ function handleCardMenuAction(card, action) {
     } else if (action === "mark") {
         doc.marked = !doc.marked;
         showNotification(doc.marked ? "文档已标记" : "已取消标记");
+    } else if (action === "rename") {
+        const input = prompt("编辑文档标题", doc.title || "");
+        if (input === null) return;
+        const nextTitle = input.trim();
+        if (!nextTitle) {
+            showNotification("标题不能为空");
+            return;
+        }
+        doc.title = nextTitle;
+        showNotification("标题已更新");
     } else if (action === "delete") {
         if (!confirm("确定删除这篇文档吗？")) return;
         docs.splice(index, 1);
