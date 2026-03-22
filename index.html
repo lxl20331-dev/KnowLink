@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KnowLink - 个人知识库</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航栏 -->
+        <header class="header">
+            <div class="header-left">
+                <div class="logo" aria-label="KnowLink - 知识整理、浏览与提炼">
+                    <div class="logo-icon" aria-hidden="true">🔗</div>
+                    <div class="logo-copy">
+                        <span class="logo-text">KnowLink</span>
+                        <span class="logo-slogan">知识整理、浏览与提炼</span>
+                    </div>
+                </div>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="globalSearchInput" placeholder="搜索全部文档…" autocomplete="off">
+            </div>
+            <div class="header-buttons">
+                <button class="help-btn">使用说明</button>
+                <button class="ai-btn">🤖 AI问答助手</button>
+            </div>
+        </header>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <div class="sidebar-backdrop" id="sidebarBackdrop" hidden></div>
+            <!-- 左侧知识集列表（抽屉） -->
+            <aside class="sidebar sidebar-drawer" id="topicDrawer">
+                <div class="sidebar-header">
+                    <div class="sidebar-title-row">
+                        <h3>知识集</h3>
+                        <button type="button" class="sidebar-inline-toggle" id="sidebarToggleBtn" title="收起知识集" aria-expanded="true" aria-controls="topicDrawer">
+                            <span class="sidebar-inline-toggle-icon" aria-hidden="true">☰</span>
+                            <span class="sidebar-inline-toggle-text">收起</span>
+                        </button>
+                    </div>
+                    <div class="sidebar-primary-actions">
+                        <button class="new-topic-btn" id="newTopicBtn">新建主题</button>
+                        <button class="quick-import-btn" id="quickImportBtn">快速导入</button>
+                    </div>
+                </div>
+                <nav class="knowledge-nav">
+                    <ul id="knowledgeList">
+                        <li class="topic-item active" data-description="探讨大模型在闭环环境中的自我演化能力">
+                            <div class="topic-content">
+                                <span class="icon">🧠</span>
+                                <span class="topic-name">Agent学习</span>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="action-btn pin-btn">📌</button>
+                                <button class="action-btn edit-btn">✏️</button>
+                            </div>
+                        </li>
+                        <li class="topic-item" data-description="对比不同体质在增肌期的碳水分配比例">
+                            <div class="topic-content">
+                                <span class="icon">🍎</span>
+                                <span class="topic-name">健身饮食</span>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="action-btn pin-btn">📌</button>
+                                <button class="action-btn edit-btn">✏️</button>
+                            </div>
+                        </li>
+                        <li class="topic-item" data-description="在AI时代，广度的重要性甚至超过了特定领域的深度">
+                            <div class="topic-content">
+                                <span class="icon">🎯</span>
+                                <span class="topic-name">如何成为多面手</span>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="action-btn pin-btn">📌</button>
+                                <button class="action-btn edit-btn">✏️</button>
+                            </div>
+                        </li>
+                        <li class="topic-item" data-description="深度解析混合虚拟语气、倒装虚拟语气的场景应用">
+                            <div class="topic-content">
+                                <span class="icon">📚</span>
+                                <span class="topic-name">英语语法核心</span>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="action-btn pin-btn">📌</button>
+                                <button class="action-btn edit-btn">✏️</button>
+                            </div>
+                        </li>
+                        <li class="topic-item" data-description="前端开发的最佳实践和工程化方案">
+                            <div class="topic-content">
+                                <span class="icon">💻</span>
+                                <span class="topic-name">前端工程化</span>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="action-btn pin-btn">📌</button>
+                                <button class="action-btn edit-btn">✏️</button>
+                            </div>
+                        </li>
+                        <li class="topic-item" data-description="UI设计的核心原则和美学理念">
+                            <div class="topic-content">
+                                <span class="icon">🎨</span>
+                                <span class="topic-name">UI设计美学</span>
+                            </div>
+                            <div class="topic-actions">
+                                <button class="action-btn pin-btn">📌</button>
+                                <button class="action-btn edit-btn">✏️</button>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <div class="user-info">
+                    <div class="avatar">👤</div>
+                    <div class="user-details">
+                        <div class="user-name">知识管理专家</div>
+                        <div class="date">2026年3月21日</div>
+                    </div>
+                </div>
+            </aside>
+
+            <button type="button" class="sidebar-reopen-btn" id="sidebarReopenBtn" title="展开知识集" aria-label="展开知识集" hidden>
+                <span class="sidebar-reopen-icon" aria-hidden="true">☰</span>
+                <span class="sidebar-reopen-text">展开</span>
+            </button>
+
+            <!-- 中间知识卡片区域 -->
+            <section class="content-area">
+                <div class="document-grid" id="documentGrid"></div>
+            </section>
+
+            <div class="panel-resizer" id="panelResizer" title="拖动调整宽度"></div>
+
+            <!-- 右侧AI助手和思维导图 -->
+            <aside class="right-sidebar">
+                <!-- AI问答助手 -->
+                <div class="ai-assistant panel" id="aiAssistantPanel">
+                    <h3>🤖 AI 问答助手</h3>
+                    <div class="ai-messages" id="aiMessages">
+                        <div class="ai-bubble ai-bubble-assistant">
+                            <p>你好，我是 KnowLink AI 助手，很高兴帮你整理和解答知识问题。</p>
+                        </div>
+                    </div>
+                    <div class="ai-input">
+                        <input type="text" id="aiInput" placeholder="向 AI 提问…">
+                        <button type="button" class="send-btn" id="aiSendBtn" title="发送" aria-label="发送">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M3.4 11.15 19.1 4.5c.9-.38 1.8.52 1.42 1.42l-6.65 15.7c-.41.97-1.82.88-2.11-.13l-1.57-5.5a1 1 0 0 0-.69-.69l-5.5-1.57c-1.01-.29-1.1-1.7-.13-2.11Z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 思维导图 -->
+                <div class="mind-tree panel" id="mindTreePanel">
+                    <h3>🌳 Mind Tree</h3>
+                    <div class="tree-controls">
+                        <button class="tree-btn" id="addNodeBtn">+ 节点</button>
+                        <button class="tree-btn" id="addChildBtn">+ 子节点</button>
+                        <button class="tree-btn" id="deleteNodeBtn">删除</button>
+                        <button class="tree-btn" id="resetMindTreeBtn">重置</button>
+                    </div>
+                    <div class="tree-viewport" id="mindTreeViewport">
+                        <div class="tree-zoom-bar">
+                            <button type="button" class="tree-zoom-btn" id="zoomOutBtn" title="缩小">−</button>
+                            <span class="tree-zoom-label" id="zoomLevelLabel">100%</span>
+                            <button type="button" class="tree-zoom-btn" id="zoomInBtn" title="放大">+</button>
+                            <button type="button" class="tree-zoom-btn tree-zoom-reset" id="resetViewBtn" title="重置视图">⊙</button>
+                        </div>
+                        <div class="tree-world" id="mindTreeWorld"></div>
+                    </div>
+                    <div class="tree-footer">
+                        <p>滚轮缩放，拖动画布空白处平移；双击空白创建节点，拖拽节点移动，双击节点改名</p>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+
+    <!-- 新建主题模态框 -->
+    <div class="modal" id="newTopicModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>新建主题</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>主题名称</label>
+                    <input type="text" id="topicName" placeholder="输入主题名称">
+                </div>
+                <div class="form-group">
+                    <label>选择图标</label>
+                    <div class="icon-selector">
+                        <!-- 学习相关 -->
+                        <span class="icon-option">🧠</span>
+                        <span class="icon-option">📚</span>
+                        <span class="icon-option">📖</span>
+                        <span class="icon-option">✏️</span>
+                        <span class="icon-option">📝</span>
+                        <span class="icon-option">📅</span>
+                        <span class="icon-option">📌</span>
+                        <span class="icon-option">🔖</span>
+                        <!-- 工作相关 -->
+                        <span class="icon-option">💼</span>
+                        <span class="icon-option">💻</span>
+                        <span class="icon-option">📊</span>
+                        <span class="icon-option">📈</span>
+                        <span class="icon-option">📋</span>
+                        <span class="icon-option">📁</span>
+                        <span class="icon-option">📄</span>
+                        <span class="icon-option">📑</span>
+                        <!-- 科技相关 -->
+                        <span class="icon-option">🤖</span>
+                        <span class="icon-option">🚀</span>
+                        <span class="icon-option">🔬</span>
+                        <span class="icon-option">💡</span>
+                        <span class="icon-option">⚡</span>
+                        <span class="icon-option">🔋</span>
+                        <span class="icon-option">📱</span>
+                        <span class="icon-option">🖥️</span>
+                        <!-- 创意相关 -->
+                        <span class="icon-option">🎨</span>
+                        <span class="icon-option">🎭</span>
+                        <span class="icon-option">🎵</span>
+                        <span class="icon-option">🎸</span>
+                        <span class="icon-option">🎹</span>
+                        <span class="icon-option">🎯</span>
+                        <span class="icon-option">🎪</span>
+                        <span class="icon-option">🎡</span>
+                        <!-- 健康相关 -->
+                        <span class="icon-option">🍎</span>
+                        <span class="icon-option">🥗</span>
+                        <span class="icon-option">💪</span>
+                        <span class="icon-option">🏃</span>
+                        <span class="icon-option">🧘</span>
+                        <span class="icon-option">😴</span>
+                        <span class="icon-option">❤️</span>
+                        <span class="icon-option">🧠</span>
+                        <!-- 生活相关 -->
+                        <span class="icon-option">🏠</span>
+                        <span class="icon-option">🚗</span>
+                        <span class="icon-option">✈️</span>
+                        <span class="icon-option">🍕</span>
+                        <span class="icon-option">🍣</span>
+                        <span class="icon-option">☕</span>
+                        <span class="icon-option">🍷</span>
+                        <span class="icon-option">🎂</span>
+                        <!-- 其他 -->
+                        <span class="icon-option">🌟</span>
+                        <span class="icon-option">⭐</span>
+                        <span class="icon-option">✨</span>
+                        <span class="icon-option">🌈</span>
+                        <span class="icon-option">🌍</span>
+                        <span class="icon-option">🌞</span>
+                        <span class="icon-option">🌙</span>
+                        <span class="icon-option">⭐</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>描述（可选）<span class="char-count">0/50</span></label>
+                    <textarea id="topicDescription" placeholder="输入主题描述" maxlength="50"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn">取消</button>
+                <button class="confirm-btn" id="createTopicBtn">创建主题</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 快速导入模态框 -->
+    <div class="modal" id="quickImportModal">
+        <div class="modal-content quick-import-modal-content">
+            <div class="modal-header quick-import-header">
+                <div class="quick-import-header-main">
+                    <h3>快速打开</h3>
+                </div>
+                <button class="close-btn quick-import-close" aria-label="关闭导入窗口">&times;</button>
+            </div>
+            <div class="modal-body quick-import-body">
+                <div class="quick-import-grid" id="quickImportGrid">
+                    <button class="quick-entry-card active" type="button" data-source-type="url">
+                        <div class="quick-entry-icon">🌐</div>
+                        <div class="quick-entry-title">网页链接</div>
+                        <div class="quick-entry-desc">粘贴 URL，自动抓取标题/正文/图片</div>
+                    </button>
+                    <button class="quick-entry-card" type="button" data-source-type="document">
+                        <div class="quick-entry-icon">📄</div>
+                        <div class="quick-entry-title">本地文档</div>
+                        <div class="quick-entry-desc">PDF/Word/Markdown/TXT</div>
+                    </button>
+                    <button class="quick-entry-card" type="button" data-source-type="text">
+                        <div class="quick-entry-icon">📝</div>
+                        <div class="quick-entry-title">文字片段</div>
+                        <div class="quick-entry-desc">粘贴剪贴板内容，自动识别关键词</div>
+                    </button>
+                    <button class="quick-entry-card" type="button" data-source-type="image">
+                        <div class="quick-entry-icon">🖼️</div>
+                        <div class="quick-entry-title">图片/截图</div>
+                        <div class="quick-entry-desc">OCR 识别并转成可编辑文本</div>
+                    </button>
+                    <button class="quick-entry-card" type="button" data-source-type="audio">
+                        <div class="quick-entry-icon">🎙️</div>
+                        <div class="quick-entry-title">语音/录音</div>
+                        <div class="quick-entry-desc">转文字并自动摘要，标记时间戳</div>
+                    </button>
+                </div>
+
+                <div class="quick-import-panel" id="quickImportPanel">
+                    <div class="quick-panel active" data-panel-type="url">
+                        <div class="drop-zone quick-form-zone">
+                            <div class="cloud-icon">🌐</div>
+                            <p>粘贴网页链接至此</p>
+                            <p class="small-text">支持 URL 粘贴，可后续扩展浏览器插件直传</p>
+                            <input type="url" id="webUrlInput" class="quick-zone-input" placeholder="https://example.com/article" autocomplete="off">
+                        </div>
+                    </div>
+
+                    <div class="quick-panel" data-panel-type="document">
+                        <div class="drop-zone" id="fileDropZone">
+                            <div class="cloud-icon">☁️</div>
+                            <p>拖拽文档至此</p>
+                            <p class="small-text">支持 PDF / Word / Markdown / TXT (最大 20MB)</p>
+                            <button class="browse-btn" id="browseFileBtn" type="button">浏览文件</button>
+                            <input type="file" id="fileInput" style="display: none;" accept=".pdf,.doc,.docx,.md,.markdown,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,text/markdown">
+                        </div>
+                    </div>
+
+                    <div class="quick-panel" data-panel-type="text">
+                        <div class="drop-zone quick-form-zone quick-text-zone">
+                            <div class="cloud-icon">📝</div>
+                            <p>粘贴文字片段至此</p>
+                            <p class="small-text">导入后自动提取关键词并关联到知识节点</p>
+                            <textarea id="quickTextInput" class="quick-zone-textarea" placeholder="粘贴或输入文字片段…" maxlength="12000"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="quick-panel" data-panel-type="image">
+                        <div class="drop-zone" id="imageDropZone">
+                            <div class="cloud-icon">🖼️</div>
+                            <p>拖拽图片或截图至此</p>
+                            <p class="small-text">支持 PNG / JPG / WEBP，自动 OCR 识别</p>
+                            <button class="browse-btn" id="browseImageBtn" type="button">选择图片</button>
+                            <input type="file" id="imageInput" style="display: none;" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="quick-panel" data-panel-type="audio">
+                        <div class="drop-zone" id="audioDropZone">
+                            <div class="cloud-icon">🎧</div>
+                            <p>拖拽语音文件至此</p>
+                            <p class="small-text">支持 MP3 / WAV / M4A，自动转写并摘要</p>
+                            <button class="browse-btn" id="browseAudioBtn" type="button">选择音频</button>
+                            <input type="file" id="audioInput" style="display: none;" accept="audio/*">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>选择知识集</label>
+                    <select id="topicSelect">
+                        <option value="">自动分类（Agent）</option>
+                        <option value="new">新建主题</option>
+                    </select>
+                    <p class="small-text">留空时由自动化 Agent 归类到已有主题，必要时自动建主题。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn">取消</button>
+                <button class="confirm-btn" id="uploadDocumentBtn">导入内容</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑主题模态框 -->
+    <div class="modal" id="editTopicModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>编辑主题</h3>
+                <button class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>主题名称</label>
+                    <input type="text" id="editTopicName" placeholder="输入主题名称">
+                </div>
+                <div class="form-group">
+                    <label>选择图标</label>
+                    <div class="icon-selector">
+                        <!-- 学习相关 -->
+                        <span class="icon-option">🧠</span>
+                        <span class="icon-option">📚</span>
+                        <span class="icon-option">📖</span>
+                        <span class="icon-option">✏️</span>
+                        <span class="icon-option">📝</span>
+                        <span class="icon-option">📅</span>
+                        <span class="icon-option">📌</span>
+                        <span class="icon-option">🔖</span>
+                        <!-- 工作相关 -->
+                        <span class="icon-option">💼</span>
+                        <span class="icon-option">💻</span>
+                        <span class="icon-option">📊</span>
+                        <span class="icon-option">📈</span>
+                        <span class="icon-option">📋</span>
+                        <span class="icon-option">📁</span>
+                        <span class="icon-option">📄</span>
+                        <span class="icon-option">📑</span>
+                        <!-- 科技相关 -->
+                        <span class="icon-option">🤖</span>
+                        <span class="icon-option">🚀</span>
+                        <span class="icon-option">🔬</span>
+                        <span class="icon-option">💡</span>
+                        <span class="icon-option">⚡</span>
+                        <span class="icon-option">🔋</span>
+                        <span class="icon-option">📱</span>
+                        <span class="icon-option">🖥️</span>
+                        <!-- 创意相关 -->
+                        <span class="icon-option">🎨</span>
+                        <span class="icon-option">🎭</span>
+                        <span class="icon-option">🎵</span>
+                        <span class="icon-option">🎸</span>
+                        <span class="icon-option">🎹</span>
+                        <span class="icon-option">🎯</span>
+                        <span class="icon-option">🎪</span>
+                        <span class="icon-option">🎡</span>
+                        <!-- 健康相关 -->
+                        <span class="icon-option">🍎</span>
+                        <span class="icon-option">🥗</span>
+                        <span class="icon-option">💪</span>
+                        <span class="icon-option">🏃</span>
+                        <span class="icon-option">🧘</span>
+                        <span class="icon-option">😴</span>
+                        <span class="icon-option">❤️</span>
+                        <span class="icon-option">🧠</span>
+                        <!-- 生活相关 -->
+                        <span class="icon-option">🏠</span>
+                        <span class="icon-option">🚗</span>
+                        <span class="icon-option">✈️</span>
+                        <span class="icon-option">🍕</span>
+                        <span class="icon-option">🍣</span>
+                        <span class="icon-option">☕</span>
+                        <span class="icon-option">🍷</span>
+                        <span class="icon-option">🎂</span>
+                        <!-- 其他 -->
+                        <span class="icon-option">🌟</span>
+                        <span class="icon-option">⭐</span>
+                        <span class="icon-option">✨</span>
+                        <span class="icon-option">🌈</span>
+                        <span class="icon-option">🌍</span>
+                        <span class="icon-option">🌞</span>
+                        <span class="icon-option">🌙</span>
+                        <span class="icon-option">⭐</span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>描述（可选）<span class="char-count">0/50</span></label>
+                    <textarea id="editTopicDescription" placeholder="输入主题描述" maxlength="50"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="cancel-btn">取消</button>
+                <button class="confirm-btn" id="saveEditBtn">保存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* 将下方空字符串改为你的 DeepSeek API Key；请勿把含密钥的页面提交到公开仓库 */
+        if (typeof window.KNOWLINK_DEEPSEEK_KEY === "undefined") {
+            window.KNOWLINK_DEEPSEEK_KEY = "";
+        }
+    </script>
+    <script src="script.js"></script>
+</body>
+</html>
